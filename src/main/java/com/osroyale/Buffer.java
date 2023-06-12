@@ -403,4 +403,25 @@ public final class Buffer extends Cacheable {
 				+ ((buffer[currentOffset - 2] & 0xff) << 8)
 				+ (buffer[currentOffset - 1] & 0xff);
 	}
+
+	public int method1606() {
+		int var2 = 0;
+
+		int var3;
+		for (var3 = this.readUShortSmart(); var3 == 32767; var3 = this.readShortSmart()) {
+			var2 += 32767;
+		}
+
+		var2 += var3;
+		return var2;
+	}
+	public int readShortSmart() {
+		int var1 = this.buffer[this.currentOffset] & 255;
+		return var1 < 128?this.readUByte() - 64:this.readUShort() - '\uc000';
+	}
+	public int readUShortSmart() {
+		int var1 = this.buffer[this.currentOffset] & 255;
+		return var1 < 128?this.readUByte():this.readUShort() - '\u8000';
+	}
+
 }

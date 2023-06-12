@@ -8,6 +8,6 @@ public final class WallDecoration {
 	int anInt502;
 	int anInt503;
 	public Renderable aClass30_Sub2_Sub4_504;
-	public int uid;
+	public long uid;
 	byte aByte506;
 }

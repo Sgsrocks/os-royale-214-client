@@ -9,6 +9,6 @@ public final class Wall {
 	int orientation1;
 	public Renderable aClass30_Sub2_Sub4_278;
 	public Renderable aClass30_Sub2_Sub4_279;
-	public int uid;
+	public long uid;
 	byte aByte281;
 }

@@ -413,26 +413,26 @@ final class ObjectManager {
 		}
 	}
 
-	private void method175(int y, SceneGraph region, CollisionMap collisionMap, int type, int height, int x, int objectId, int rotation) {
+	private void method175(int y, SceneGraph region, CollisionMap collisionMap, int type, int z, int x, int id, int orientation) {
 		if (lowMem && (tile_flags[0][x][y] & 2) == 0) {
-			if ((tile_flags[height][x][y] & 0x10) != 0) {
+			if ((tile_flags[z][x][y] & 0x10) != 0) {
 				return;
 			}
 
-			if (method182(y, height, x) != anInt131) {
+			if (method182(y, z, x) != anInt131) {
 				return;
 			}
 		}
 
-		if (height < min_plane) {
-			min_plane = height;
+		if (z < min_plane) {
+			min_plane = z;
 		}
 
-		ObjectDefinition objectDefinition = ObjectDefinition.forID(objectId);
+		ObjectDefinition objectDefinition = ObjectDefinition.forID(id);
 
 		int sizeY;
 		int sizeX;
-		if (rotation != 1 && rotation != 3) {
+		if (orientation != 1 && orientation != 3) {
 			sizeX = objectDefinition.width;
 			sizeY = objectDefinition.length;
 		} else {
@@ -460,20 +460,22 @@ final class ObjectManager {
 			editY2 = 1 + y;
 		}
 
-		int k1 = vertex_heights[height][editX][editY];
-		int l1 = vertex_heights[height][editX2][editY];
-		int i2 = vertex_heights[height][editX2][editY2];
-		int j2 = vertex_heights[height][editX][editY2];
+		int k1 = vertex_heights[z][editX][editY];
+		int l1 = vertex_heights[z][editX2][editY];
+		int i2 = vertex_heights[z][editX2][editY2];
+		int j2 = vertex_heights[z][editX][editY2];
 		int k2 = k1 + l1 + i2 + j2 >> 2;
 
-		int l2 = x + (y << 7) + (objectId << 14) + 0x40000000;
+		long key = (long) (orientation << 20 | type << 14 | (y << 7 | x) + 0x40000000);
 
 		if (!objectDefinition.interactive) {
-			l2 += 0x80000000;
+			key |= ~0x7fffffffffffffffL;
 		}
-
-		byte byte0 = (byte) ((rotation << 6) + type);
-
+		if(objectDefinition.anInt760 == 1) {
+			key |= 0x400000L;
+		}
+		key |= (long) id << 32;
+		byte byte0 = (byte) ((orientation << 6) + type);
 		if (type == 22) {
 			if (!Settings.GROUND_DECORATIONS && !objectDefinition.interactive && !objectDefinition.obstructsGround) {
 				return;
@@ -481,12 +483,12 @@ final class ObjectManager {
 
 			Renderable obj;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null) {
-				obj = objectDefinition.method578(22, rotation, k1, l1, i2, j2, -1);
+				obj = objectDefinition.method578(22, orientation, k1, l1, i2, j2, -1);
 			} else {
-				obj = new SceneObject(objectId, rotation, 22, l1, i2, k1, j2, objectDefinition.anInt781, true);
+				obj = new SceneObject(id, orientation, 22, l1, i2, k1, j2, objectDefinition.anInt781, true);
 			}
 
-			region.method280(height, k2, y, obj, byte0, l2, x);
+			region.method280(z, k2, y, obj, byte0, key, x);
 
 			if (objectDefinition.solid && objectDefinition.interactive && collisionMap != null) {
 				collisionMap.block(x, y);
@@ -497,36 +499,36 @@ final class ObjectManager {
 		if (type == 10 || type == 11) {
 			Object obj1;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj1 = objectDefinition.method578(10, rotation, k1, l1, i2, j2, -1);
+				obj1 = objectDefinition.method578(10, orientation, k1, l1, i2, j2, -1);
 			else
-				obj1 = new SceneObject(objectId, rotation, 10, l1, i2, k1, j2, objectDefinition.anInt781, true);
+				obj1 = new SceneObject(id, orientation, 10, l1, i2, k1, j2, objectDefinition.anInt781, true);
 			if (obj1 != null) {
 				int i5 = 0;
 				if (type == 11)
 					i5 += 256;
 				int width;
 				int length;
-				if (rotation == 1 || rotation == 3) {
+				if (orientation == 1 || orientation == 3) {
 					width = objectDefinition.length;
 					length = objectDefinition.width;
 				} else {
 					width = objectDefinition.width;
 					length = objectDefinition.length;
 				}
-				if (region.method284(l2, byte0, k2, length, ((Renderable) (obj1)), width, height, i5, y, x) && objectDefinition.aBoolean779) {
+				if (region.method284(key, byte0, k2, length, ((Renderable) (obj1)), width, z, i5, y, x) && objectDefinition.aBoolean779) {
 					Model model;
 					if (obj1 instanceof Model)
 						model = (Model) obj1;
 					else
-						model = objectDefinition.method578(10, rotation, k1, l1, i2, j2, -1);
+						model = objectDefinition.method578(10, orientation, k1, l1, i2, j2, -1);
 					if (model != null) {
 						for (int xx = 0; xx <= width; xx++) {
 							for (int yy = 0; yy <= length; yy++) {
 								int l5 = model.XYZMag / 4;
 								if (l5 > 30)
 									l5 = 30;
-								if (l5 > tile_shadow_intensity[height][x + xx][y + yy])
-									tile_shadow_intensity[height][x + xx][y + yy] = (byte) l5;
+								if (l5 > tile_shadow_intensity[z][x + xx][y + yy])
+									tile_shadow_intensity[z][x + xx][y + yy] = (byte) l5;
 							}
 
 						}
@@ -535,162 +537,162 @@ final class ObjectManager {
 				}
 			}
 			if (objectDefinition.solid && collisionMap != null)
-				collisionMap.clipObject(x, y, objectDefinition.width, objectDefinition.length, rotation, objectDefinition.impenetrable);
+				collisionMap.clipObject(x, y, objectDefinition.width, objectDefinition.length, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type >= 12) {
 			Object obj2;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj2 = objectDefinition.method578(type, rotation, k1, l1, i2, j2, -1);
+				obj2 = objectDefinition.method578(type, orientation, k1, l1, i2, j2, -1);
 			else
-				obj2 = new SceneObject(objectId, rotation, type, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method284(l2, byte0, k2, 1, ((Renderable) (obj2)), 1, height, 0, y, x);
-			if (type >= 12 && type <= 17 && type != 13 && height > 0)
-				tile_culling_bitsets[height][x][y] |= 0x924;
+				obj2 = new SceneObject(id, orientation, type, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method284(key, byte0, k2, 1, ((Renderable) (obj2)), 1, z, 0, y, x);
+			if (type >= 12 && type <= 17 && type != 13 && z > 0)
+				tile_culling_bitsets[z][x][y] |= 0x924;
 			if (objectDefinition.solid && collisionMap != null)
-				collisionMap.clipObject(x, y, objectDefinition.width, objectDefinition.length, rotation, objectDefinition.impenetrable);
+				collisionMap.clipObject(x, y, objectDefinition.width, objectDefinition.length, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type == 0) {
 			Object obj3;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj3 = objectDefinition.method578(0, rotation, k1, l1, i2, j2, -1);
+				obj3 = objectDefinition.method578(0, orientation, k1, l1, i2, j2, -1);
 			else
-				obj3 = new SceneObject(objectId, rotation, 0, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method282(anIntArray152[rotation], ((Renderable) (obj3)), l2, y, byte0, x, null, k2, 0, height);
-			if (rotation == 0) {
+				obj3 = new SceneObject(id, orientation, 0, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method282(anIntArray152[orientation], ((Renderable) (obj3)), key, y, byte0, x, null, k2, 0, z);
+			if (orientation == 0) {
 				if (objectDefinition.aBoolean779) {
-					tile_shadow_intensity[height][x][y] = 50;
-					tile_shadow_intensity[height][x][y + 1] = 50;
+					tile_shadow_intensity[z][x][y] = 50;
+					tile_shadow_intensity[z][x][y + 1] = 50;
 				}
 				if (objectDefinition.aBoolean764)
-					tile_culling_bitsets[height][x][y] |= 0x249;
-			} else if (rotation == 1) {
+					tile_culling_bitsets[z][x][y] |= 0x249;
+			} else if (orientation == 1) {
 				if (objectDefinition.aBoolean779) {
-					tile_shadow_intensity[height][x][y + 1] = 50;
-					tile_shadow_intensity[height][x + 1][y + 1] = 50;
+					tile_shadow_intensity[z][x][y + 1] = 50;
+					tile_shadow_intensity[z][x + 1][y + 1] = 50;
 				}
 				if (objectDefinition.aBoolean764)
-					tile_culling_bitsets[height][x][y + 1] |= 0x492;
-			} else if (rotation == 2) {
+					tile_culling_bitsets[z][x][y + 1] |= 0x492;
+			} else if (orientation == 2) {
 				if (objectDefinition.aBoolean779) {
-					tile_shadow_intensity[height][x + 1][y] = 50;
-					tile_shadow_intensity[height][x + 1][y + 1] = 50;
+					tile_shadow_intensity[z][x + 1][y] = 50;
+					tile_shadow_intensity[z][x + 1][y + 1] = 50;
 				}
 				if (objectDefinition.aBoolean764)
-					tile_culling_bitsets[height][x + 1][y] |= 0x249;
-			} else if (rotation == 3) {
+					tile_culling_bitsets[z][x + 1][y] |= 0x249;
+			} else if (orientation == 3) {
 				if (objectDefinition.aBoolean779) {
-					tile_shadow_intensity[height][x][y] = 50;
-					tile_shadow_intensity[height][x + 1][y] = 50;
+					tile_shadow_intensity[z][x][y] = 50;
+					tile_shadow_intensity[z][x + 1][y] = 50;
 				}
 				if (objectDefinition.aBoolean764)
-					tile_culling_bitsets[height][x][y] |= 0x492;
+					tile_culling_bitsets[z][x][y] |= 0x492;
 			}
 			if (objectDefinition.solid && collisionMap != null)
-				collisionMap.clip(x, y, type, rotation, objectDefinition.impenetrable);
+				collisionMap.clip(x, y, type, orientation, objectDefinition.impenetrable);
 			if (objectDefinition.anInt775 != 16)
-				region.method290(y, objectDefinition.anInt775, x, height);
+				region.method290(y, objectDefinition.anInt775, x, z);
 			return;
 		}
 		if (type == 1) {
 			Object obj4;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj4 = objectDefinition.method578(1, rotation, k1, l1, i2, j2, -1);
+				obj4 = objectDefinition.method578(1, orientation, k1, l1, i2, j2, -1);
 			else
-				obj4 = new SceneObject(objectId, rotation, 1, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method282(anIntArray140[rotation], ((Renderable) (obj4)), l2, y, byte0, x, null, k2, 0, height);
+				obj4 = new SceneObject(id, orientation, 1, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method282(anIntArray140[orientation], ((Renderable) (obj4)), key, y, byte0, x, null, k2, 0, z);
 			if (objectDefinition.aBoolean779)
-				if (rotation == 0)
-					tile_shadow_intensity[height][x][y + 1] = 50;
-				else if (rotation == 1)
-					tile_shadow_intensity[height][x + 1][y + 1] = 50;
-				else if (rotation == 2)
-					tile_shadow_intensity[height][x + 1][y] = 50;
-				else if (rotation == 3)
-					tile_shadow_intensity[height][x][y] = 50;
+				if (orientation == 0)
+					tile_shadow_intensity[z][x][y + 1] = 50;
+				else if (orientation == 1)
+					tile_shadow_intensity[z][x + 1][y + 1] = 50;
+				else if (orientation == 2)
+					tile_shadow_intensity[z][x + 1][y] = 50;
+				else if (orientation == 3)
+					tile_shadow_intensity[z][x][y] = 50;
 			if (objectDefinition.solid && collisionMap != null)
-				collisionMap.clip(x, y, type, rotation, objectDefinition.impenetrable);
+				collisionMap.clip(x, y, type, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type == 2) {
-			int i3 = rotation + 1 & 3;
+			int i3 = orientation + 1 & 3;
 			Object obj11;
 			Object obj12;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null) {
-				obj11 = objectDefinition.method578(2, 4 + rotation, k1, l1, i2, j2, -1);
+				obj11 = objectDefinition.method578(2, 4 + orientation, k1, l1, i2, j2, -1);
 				obj12 = objectDefinition.method578(2, i3, k1, l1, i2, j2, -1);
 			} else {
-				obj11 = new SceneObject(objectId, 4 + rotation, 2, l1, i2, k1, j2, objectDefinition.anInt781, true);
-				obj12 = new SceneObject(objectId, i3, 2, l1, i2, k1, j2, objectDefinition.anInt781, true);
+				obj11 = new SceneObject(id, 4 + orientation, 2, l1, i2, k1, j2, objectDefinition.anInt781, true);
+				obj12 = new SceneObject(id, i3, 2, l1, i2, k1, j2, objectDefinition.anInt781, true);
 			}
-			region.method282(anIntArray152[rotation], ((Renderable) (obj11)), l2, y, byte0, x, ((Renderable) (obj12)), k2, anIntArray152[i3], height);
+			region.method282(anIntArray152[orientation], ((Renderable) (obj11)), key, y, byte0, x, ((Renderable) (obj12)), k2, anIntArray152[i3], z);
 			if (objectDefinition.aBoolean764)
-				if (rotation == 0) {
-					tile_culling_bitsets[height][x][y] |= 0x249;
-					tile_culling_bitsets[height][x][y + 1] |= 0x492;
-				} else if (rotation == 1) {
-					tile_culling_bitsets[height][x][y + 1] |= 0x492;
-					tile_culling_bitsets[height][x + 1][y] |= 0x249;
-				} else if (rotation == 2) {
-					tile_culling_bitsets[height][x + 1][y] |= 0x249;
-					tile_culling_bitsets[height][x][y] |= 0x492;
-				} else if (rotation == 3) {
-					tile_culling_bitsets[height][x][y] |= 0x492;
-					tile_culling_bitsets[height][x][y] |= 0x249;
+				if (orientation == 0) {
+					tile_culling_bitsets[z][x][y] |= 0x249;
+					tile_culling_bitsets[z][x][y + 1] |= 0x492;
+				} else if (orientation == 1) {
+					tile_culling_bitsets[z][x][y + 1] |= 0x492;
+					tile_culling_bitsets[z][x + 1][y] |= 0x249;
+				} else if (orientation == 2) {
+					tile_culling_bitsets[z][x + 1][y] |= 0x249;
+					tile_culling_bitsets[z][x][y] |= 0x492;
+				} else if (orientation == 3) {
+					tile_culling_bitsets[z][x][y] |= 0x492;
+					tile_culling_bitsets[z][x][y] |= 0x249;
 				}
 			if (objectDefinition.solid && collisionMap != null)
-				collisionMap.clip(x, y, type, rotation, objectDefinition.impenetrable);
+				collisionMap.clip(x, y, type, orientation, objectDefinition.impenetrable);
 			if (objectDefinition.anInt775 != 16)
-				region.method290(y, objectDefinition.anInt775, x, height);
+				region.method290(y, objectDefinition.anInt775, x, z);
 			return;
 		}
 		if (type == 3) {
 			Object obj5;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj5 = objectDefinition.method578(3, rotation, k1, l1, i2, j2, -1);
+				obj5 = objectDefinition.method578(3, orientation, k1, l1, i2, j2, -1);
 			else
-				obj5 = new SceneObject(objectId, rotation, 3, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method282(anIntArray140[rotation], ((Renderable) (obj5)), l2, y, byte0, x, null, k2, 0, height);
+				obj5 = new SceneObject(id, orientation, 3, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method282(anIntArray140[orientation], ((Renderable) (obj5)), key, y, byte0, x, null, k2, 0, z);
 			if (objectDefinition.aBoolean779)
-				if (rotation == 0)
-					tile_shadow_intensity[height][x][y + 1] = 50;
-				else if (rotation == 1)
-					tile_shadow_intensity[height][x + 1][y + 1] = 50;
-				else if (rotation == 2)
-					tile_shadow_intensity[height][x + 1][y] = 50;
-				else if (rotation == 3)
-					tile_shadow_intensity[height][x][y] = 50;
+				if (orientation == 0)
+					tile_shadow_intensity[z][x][y + 1] = 50;
+				else if (orientation == 1)
+					tile_shadow_intensity[z][x + 1][y + 1] = 50;
+				else if (orientation == 2)
+					tile_shadow_intensity[z][x + 1][y] = 50;
+				else if (orientation == 3)
+					tile_shadow_intensity[z][x][y] = 50;
 			if (objectDefinition.solid && collisionMap != null)
-				collisionMap.clip(x, y, type, rotation, objectDefinition.impenetrable);
+				collisionMap.clip(x, y, type, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type == 9) {
 			Object obj6;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj6 = objectDefinition.method578(type, rotation, k1, l1, i2, j2, -1);
+				obj6 = objectDefinition.method578(type, orientation, k1, l1, i2, j2, -1);
 			else
-				obj6 = new SceneObject(objectId, rotation, type, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method284(l2, byte0, k2, 1, ((Renderable) (obj6)), 1, height, 0, y, x);
+				obj6 = new SceneObject(id, orientation, type, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method284(key, byte0, k2, 1, ((Renderable) (obj6)), 1, z, 0, y, x);
 			if (objectDefinition.solid && collisionMap != null)
-				collisionMap.clipObject(x, y, objectDefinition.width, objectDefinition.length, rotation, objectDefinition.impenetrable);
+				collisionMap.clipObject(x, y, objectDefinition.width, objectDefinition.length, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (objectDefinition.aBoolean762)
-			if (rotation == 1) {
+			if (orientation == 1) {
 				int j3 = j2;
 				j2 = i2;
 				i2 = l1;
 				l1 = k1;
 				k1 = j3;
-			} else if (rotation == 2) {
+			} else if (orientation == 2) {
 				int k3 = j2;
 				j2 = l1;
 				l1 = k3;
 				k3 = i2;
 				i2 = k1;
 				k1 = k3;
-			} else if (rotation == 3) {
+			} else if (orientation == 3) {
 				int l3 = j2;
 				j2 = k1;
 				k1 = l1;
@@ -702,21 +704,21 @@ final class ObjectManager {
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj7 = objectDefinition.method578(4, 0, k1, l1, i2, j2, -1);
 			else
-				obj7 = new SceneObject(objectId, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method283(l2, y, rotation * 512, height, 0, k2, ((Renderable) (obj7)), x, byte0, 0, anIntArray152[rotation]);
+				obj7 = new SceneObject(id, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method283(key, y, orientation * 512, z, 0, k2, ((Renderable) (obj7)), x, byte0, 0, anIntArray152[orientation]);
 			return;
 		}
 		if (type == 5) {
 			int i4 = 16;
-			int k4 = region.method300(height, x, y);
+			long k4 = region.method300(z, x, y);
 			if (k4 > 0)
-				i4 = ObjectDefinition.forID(k4 >> 14 & 0x7fff).anInt775;
+				i4 = ObjectDefinition.forID(ObjectKey.getObjectId(k4)).anInt775;
 			Object obj13;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj13 = objectDefinition.method578(4, 0, k1, l1, i2, j2, -1);
 			else
-				obj13 = new SceneObject(objectId, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method283(l2, y, rotation * 512, height, anIntArray137[rotation] * i4, k2, ((Renderable) (obj13)), x, byte0, anIntArray144[rotation] * i4, anIntArray152[rotation]);
+				obj13 = new SceneObject(id, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method283(key, y, orientation * 512, z, anIntArray137[orientation] * i4, k2, ((Renderable) (obj13)), x, byte0, anIntArray144[orientation] * i4, anIntArray152[orientation]);
 			return;
 		}
 		if (type == 6) {
@@ -724,8 +726,8 @@ final class ObjectManager {
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj8 = objectDefinition.method578(4, 0, k1, l1, i2, j2, -1);
 			else
-				obj8 = new SceneObject(objectId, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method283(l2, y, rotation, height, 0, k2, ((Renderable) (obj8)), x, byte0, 0, 256);
+				obj8 = new SceneObject(id, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method283(key, y, orientation, z, 0, k2, ((Renderable) (obj8)), x, byte0, 0, 256);
 			return;
 		}
 		if (type == 7) {
@@ -733,8 +735,8 @@ final class ObjectManager {
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj9 = objectDefinition.method578(4, 0, k1, l1, i2, j2, -1);
 			else
-				obj9 = new SceneObject(objectId, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method283(l2, y, rotation, height, 0, k2, ((Renderable) (obj9)), x, byte0, 0, 512);
+				obj9 = new SceneObject(id, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method283(key, y, orientation, z, 0, k2, ((Renderable) (obj9)), x, byte0, 0, 512);
 			return;
 		}
 		if (type == 8) {
@@ -742,8 +744,8 @@ final class ObjectManager {
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj10 = objectDefinition.method578(4, 0, k1, l1, i2, j2, -1);
 			else
-				obj10 = new SceneObject(objectId, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
-			region.method283(l2, y, rotation, height, 0, k2, ((Renderable) (obj10)), x, byte0, 0, 768);
+				obj10 = new SceneObject(id, 0, 4, l1, i2, k1, j2, objectDefinition.anInt781, true);
+			region.method283(key, y, orientation, z, 0, k2, ((Renderable) (obj10)), x, byte0, 0, 768);
 		}
 	}
 
@@ -985,24 +987,29 @@ final class ObjectManager {
 		return (i & 0xff80) + j;
 	}
 
-	public static void method188(SceneGraph worldController, int rotation, int y, int type, int l, CollisionMap matrix, int ai[][][], int x, int j1, int k1) {
-		int l1 = ai[l][x][y];
-		int i2 = ai[l][x + 1][y];
-		int j2 = ai[l][x + 1][y + 1];
-		int k2 = ai[l][x][y + 1];
+	public static void method188(SceneGraph worldController, int orientation, int y, int type, int plane, CollisionMap matrix, int ai[][][], int x, int id, int k1) {
+		int l1 = ai[plane][x][y];
+		int i2 = ai[plane][x + 1][y];
+		int j2 = ai[plane][x + 1][y + 1];
+		int k2 = ai[plane][x][y + 1];
 		int l2 = l1 + i2 + j2 + k2 >> 2;
-		ObjectDefinition objectDefinition = ObjectDefinition.forID(j1);
-		int i3 = x + (y << 7) + (j1 << 14) + 0x40000000;
-		if (!objectDefinition.interactive)
-			i3 += 0x80000000;
-		byte byte1 = (byte) ((rotation << 6) + type);
+		ObjectDefinition objectDefinition = ObjectDefinition.forID(id);
+		long key = (long) (orientation << 20 | type << 14 | (y << 7 | x) + 0x40000000);
+		if (!objectDefinition.interactive) {
+			key |= ~0x7fffffffffffffffL;
+		}
+		if(objectDefinition.anInt760 == 1) {
+			key |= 0x400000L;
+		}
+		key |= (long) id << 32;
+		byte byte1 = (byte) ((orientation << 6) + type);
 		if (type == 22) {
 			Object obj;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj = objectDefinition.method578(22, rotation, l1, i2, j2, k2, -1);
+				obj = objectDefinition.method578(22, orientation, l1, i2, j2, k2, -1);
 			else
-				obj = new SceneObject(j1, rotation, 22, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method280(k1, l2, y, ((Renderable) (obj)), byte1, i3, x);
+				obj = new SceneObject(id, orientation, 22, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method280(k1, l2, y, ((Renderable) (obj)), byte1, key, x);
 			if (objectDefinition.solid && objectDefinition.interactive)
 				matrix.block(x, y);
 			return;
@@ -1010,114 +1017,114 @@ final class ObjectManager {
 		if (type == 10 || type == 11) {
 			Object obj1;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj1 = objectDefinition.method578(10, rotation, l1, i2, j2, k2, -1);
+				obj1 = objectDefinition.method578(10, orientation, l1, i2, j2, k2, -1);
 			else
-				obj1 = new SceneObject(j1, rotation, 10, i2, j2, l1, k2, objectDefinition.anInt781, true);
+				obj1 = new SceneObject(id, orientation, 10, i2, j2, l1, k2, objectDefinition.anInt781, true);
 			if (obj1 != null) {
 				int j5 = 0;
 				if (type == 11)
 					j5 += 256;
 				int k4;
 				int i5;
-				if (rotation == 1 || rotation == 3) {
+				if (orientation == 1 || orientation == 3) {
 					k4 = objectDefinition.length;
 					i5 = objectDefinition.width;
 				} else {
 					k4 = objectDefinition.width;
 					i5 = objectDefinition.length;
 				}
-				worldController.method284(i3, byte1, l2, i5, ((Renderable) (obj1)), k4, k1, j5, y, x);
+				worldController.method284(key, byte1, l2, i5, ((Renderable) (obj1)), k4, k1, j5, y, x);
 			}
 			if (objectDefinition.solid)
-				matrix.clipObject(x, y, objectDefinition.width, objectDefinition.length, rotation, objectDefinition.impenetrable);
+				matrix.clipObject(x, y, objectDefinition.width, objectDefinition.length, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type >= 12) {
 			Object obj2;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj2 = objectDefinition.method578(type, rotation, l1, i2, j2, k2, -1);
+				obj2 = objectDefinition.method578(type, orientation, l1, i2, j2, k2, -1);
 			else
-				obj2 = new SceneObject(j1, rotation, type, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method284(i3, byte1, l2, 1, ((Renderable) (obj2)), 1, k1, 0, y, x);
+				obj2 = new SceneObject(id, orientation, type, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method284(key, byte1, l2, 1, ((Renderable) (obj2)), 1, k1, 0, y, x);
 			if (objectDefinition.solid)
-				matrix.clipObject(x, y, objectDefinition.width, objectDefinition.length, rotation, objectDefinition.impenetrable);
+				matrix.clipObject(x, y, objectDefinition.width, objectDefinition.length, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type == 0) {
 			Object obj3;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj3 = objectDefinition.method578(0, rotation, l1, i2, j2, k2, -1);
+				obj3 = objectDefinition.method578(0, orientation, l1, i2, j2, k2, -1);
 			else
-				obj3 = new SceneObject(j1, rotation, 0, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method282(anIntArray152[rotation], ((Renderable) (obj3)), i3, y, byte1, x, null, l2, 0, k1);
+				obj3 = new SceneObject(id, orientation, 0, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method282(anIntArray152[orientation], ((Renderable) (obj3)), key, y, byte1, x, null, l2, 0, k1);
 			if (objectDefinition.solid)
-				matrix.clip(x, y, type, rotation, objectDefinition.impenetrable);
+				matrix.clip(x, y, type, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type == 1) {
 			Object obj4;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj4 = objectDefinition.method578(1, rotation, l1, i2, j2, k2, -1);
+				obj4 = objectDefinition.method578(1, orientation, l1, i2, j2, k2, -1);
 			else
-				obj4 = new SceneObject(j1, rotation, 1, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method282(anIntArray140[rotation], ((Renderable) (obj4)), i3, y, byte1, x, null, l2, 0, k1);
+				obj4 = new SceneObject(id, orientation, 1, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method282(anIntArray140[orientation], ((Renderable) (obj4)), key, y, byte1, x, null, l2, 0, k1);
 			if (objectDefinition.solid)
-				matrix.clip(x, y, type, rotation, objectDefinition.impenetrable);
+				matrix.clip(x, y, type, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type == 2) {
-			int j3 = rotation + 1 & 3;
+			int j3 = orientation + 1 & 3;
 			Object obj11;
 			Object obj12;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null) {
-				obj11 = objectDefinition.method578(2, 4 + rotation, l1, i2, j2, k2, -1);
+				obj11 = objectDefinition.method578(2, 4 + orientation, l1, i2, j2, k2, -1);
 				obj12 = objectDefinition.method578(2, j3, l1, i2, j2, k2, -1);
 			} else {
-				obj11 = new SceneObject(j1, 4 + rotation, 2, i2, j2, l1, k2, objectDefinition.anInt781, true);
-				obj12 = new SceneObject(j1, j3, 2, i2, j2, l1, k2, objectDefinition.anInt781, true);
+				obj11 = new SceneObject(id, 4 + orientation, 2, i2, j2, l1, k2, objectDefinition.anInt781, true);
+				obj12 = new SceneObject(id, j3, 2, i2, j2, l1, k2, objectDefinition.anInt781, true);
 			}
-			worldController.method282(anIntArray152[rotation], ((Renderable) (obj11)), i3, y, byte1, x, ((Renderable) (obj12)), l2, anIntArray152[j3], k1);
+			worldController.method282(anIntArray152[orientation], ((Renderable) (obj11)), key, y, byte1, x, ((Renderable) (obj12)), l2, anIntArray152[j3], k1);
 			if (objectDefinition.solid)
-				matrix.clip(x, y, type, rotation, objectDefinition.impenetrable);
+				matrix.clip(x, y, type, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type == 3) {
 			Object obj5;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj5 = objectDefinition.method578(3, rotation, l1, i2, j2, k2, -1);
+				obj5 = objectDefinition.method578(3, orientation, l1, i2, j2, k2, -1);
 			else
-				obj5 = new SceneObject(j1, rotation, 3, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method282(anIntArray140[rotation], ((Renderable) (obj5)), i3, y, byte1, x, null, l2, 0, k1);
+				obj5 = new SceneObject(id, orientation, 3, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method282(anIntArray140[orientation], ((Renderable) (obj5)), key, y, byte1, x, null, l2, 0, k1);
 			if (objectDefinition.solid)
-				matrix.clip(x, y, type, rotation, objectDefinition.impenetrable);
+				matrix.clip(x, y, type, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (type == 9) {
 			Object obj6;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
-				obj6 = objectDefinition.method578(type, rotation, l1, i2, j2, k2, -1);
+				obj6 = objectDefinition.method578(type, orientation, l1, i2, j2, k2, -1);
 			else
-				obj6 = new SceneObject(j1, rotation, type, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method284(i3, byte1, l2, 1, ((Renderable) (obj6)), 1, k1, 0, y, x);
+				obj6 = new SceneObject(id, orientation, type, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method284(key, byte1, l2, 1, ((Renderable) (obj6)), 1, k1, 0, y, x);
 			if (objectDefinition.solid)
-				matrix.clipObject(x, y, objectDefinition.width, objectDefinition.length, rotation, objectDefinition.impenetrable);
+				matrix.clipObject(x, y, objectDefinition.width, objectDefinition.length, orientation, objectDefinition.impenetrable);
 			return;
 		}
 		if (objectDefinition.aBoolean762)
-			if (rotation == 1) {
+			if (orientation == 1) {
 				int k3 = k2;
 				k2 = j2;
 				j2 = i2;
 				i2 = l1;
 				l1 = k3;
-			} else if (rotation == 2) {
+			} else if (orientation == 2) {
 				int l3 = k2;
 				k2 = i2;
 				i2 = l3;
 				l3 = j2;
 				j2 = l1;
 				l1 = l3;
-			} else if (rotation == 3) {
+			} else if (orientation == 3) {
 				int i4 = k2;
 				k2 = l1;
 				l1 = i2;
@@ -1129,21 +1136,21 @@ final class ObjectManager {
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj7 = objectDefinition.method578(4, 0, l1, i2, j2, k2, -1);
 			else
-				obj7 = new SceneObject(j1, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method283(i3, y, rotation * 512, k1, 0, l2, ((Renderable) (obj7)), x, byte1, 0, anIntArray152[rotation]);
+				obj7 = new SceneObject(id, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method283(key, y, orientation * 512, k1, 0, l2, ((Renderable) (obj7)), x, byte1, 0, anIntArray152[orientation]);
 			return;
 		}
 		if (type == 5) {
 			int j4 = 16;
-			int l4 = worldController.method300(k1, x, y);
+			long l4 = worldController.method300(k1, x, y);
 			if (l4 > 0)
-				j4 = ObjectDefinition.forID(l4 >> 14 & 0x7fff).anInt775;
+				j4 = ObjectDefinition.forID(ObjectKey.getObjectId(l4)).anInt775;
 			Object obj13;
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj13 = objectDefinition.method578(4, 0, l1, i2, j2, k2, -1);
 			else
-				obj13 = new SceneObject(j1, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method283(i3, y, rotation * 512, k1, anIntArray137[rotation] * j4, l2, ((Renderable) (obj13)), x, byte1, anIntArray144[rotation] * j4, anIntArray152[rotation]);
+				obj13 = new SceneObject(id, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method283(key, y, orientation * 512, k1, anIntArray137[orientation] * j4, l2, ((Renderable) (obj13)), x, byte1, anIntArray144[orientation] * j4, anIntArray152[orientation]);
 			return;
 		}
 		if (type == 6) {
@@ -1151,8 +1158,8 @@ final class ObjectManager {
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj8 = objectDefinition.method578(4, 0, l1, i2, j2, k2, -1);
 			else
-				obj8 = new SceneObject(j1, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method283(i3, y, rotation, k1, 0, l2, ((Renderable) (obj8)), x, byte1, 0, 256);
+				obj8 = new SceneObject(id, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method283(key, y, orientation, k1, 0, l2, ((Renderable) (obj8)), x, byte1, 0, 256);
 			return;
 		}
 		if (type == 7) {
@@ -1160,8 +1167,8 @@ final class ObjectManager {
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj9 = objectDefinition.method578(4, 0, l1, i2, j2, k2, -1);
 			else
-				obj9 = new SceneObject(j1, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method283(i3, y, rotation, k1, 0, l2, ((Renderable) (obj9)), x, byte1, 0, 512);
+				obj9 = new SceneObject(id, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method283(key, y, orientation, k1, 0, l2, ((Renderable) (obj9)), x, byte1, 0, 512);
 			return;
 		}
 		if (type == 8) {
@@ -1169,8 +1176,8 @@ final class ObjectManager {
 			if (objectDefinition.anInt781 == -1 && objectDefinition.childrenIDs == null)
 				obj10 = objectDefinition.method578(4, 0, l1, i2, j2, k2, -1);
 			else
-				obj10 = new SceneObject(j1, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
-			worldController.method283(i3, y, rotation, k1, 0, l2, ((Renderable) (obj10)), x, byte1, 0, 768);
+				obj10 = new SceneObject(id, 0, 4, i2, j2, l1, k2, objectDefinition.anInt781, true);
+			worldController.method283(key, y, orientation, k1, 0, l2, ((Renderable) (obj10)), x, byte1, 0, 768);
 		}
 	}
 
@@ -1179,7 +1186,7 @@ final class ObjectManager {
 		Buffer stream = new Buffer(is);
 		int objId = -1;
 		for (; ; ) {
-			int objIdOffset = stream.method422();
+			int objIdOffset = stream.method1606();
 			if (objIdOffset == 0)
 				break;
 			objId += objIdOffset;
@@ -1187,13 +1194,13 @@ final class ObjectManager {
 			boolean bool_255_ = false;
 			for (; ; ) {
 				if (bool_255_) {
-					int objPosInfoOffset = stream.method422();
+					int objPosInfoOffset = stream.readUShortSmart();
 					if (objPosInfoOffset == 0) {
 						break;
 					}
 					stream.readUByte();
 				} else {
-					int objPosInfoOffset = stream.method422();
+					int objPosInfoOffset = stream.readUShortSmart();
 					if (objPosInfoOffset == 0) {
 						break;
 					}
@@ -1224,14 +1231,14 @@ final class ObjectManager {
 			Buffer stream = new Buffer(data);
 			int objId = -1;
 			do {
-				int objIdOffset = stream.readUnsignedIntSmartShortCompat();
+				int objIdOffset = stream.method1606();
 				if (objIdOffset == 0) {
 					break main_loop;
 				}
 				objId += objIdOffset;
 				int objPosInfo = 0;
 				do {
-					int objPosInfoOffset = stream.method422();
+					int objPosInfoOffset = stream.readUShortSmart();
 					if (objPosInfoOffset == 0) {
 						break;
 					}

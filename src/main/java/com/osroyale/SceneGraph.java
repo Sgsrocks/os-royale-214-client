@@ -134,7 +134,7 @@ final class SceneGraph {
 		groundArray[i][j][k].aClass40_1312 = class40;
 	}
 
-	public void method280(int i, int j, int k, Renderable class30_sub2_sub4, byte byte0, int i1, int j1) {
+	public void method280(int i, int j, int k, Renderable class30_sub2_sub4, byte byte0, long i1, int j1) {
 		if (class30_sub2_sub4 == null)
 			return;
 		GroundDecoration class49 = new GroundDecoration();
@@ -149,7 +149,7 @@ final class SceneGraph {
 		groundArray[i][j1][k].obj3 = class49;
 	}
 
-	public void method281(int i, int j, Renderable class30_sub2_sub4, int k, Renderable class30_sub2_sub4_1, Renderable class30_sub2_sub4_2, int l, int i1) {
+	public void method281(int i, long j, Renderable class30_sub2_sub4, int k, Renderable class30_sub2_sub4_1, Renderable class30_sub2_sub4_2, int l, int i1) {
 		ItemPile object4 = new ItemPile();
 		object4.aClass30_Sub2_Sub4_48 = class30_sub2_sub4_2;
 		object4.anInt46 = i * 128 + 64;
@@ -175,7 +175,7 @@ final class SceneGraph {
 		groundArray[l][i][i1].obj4 = object4;
 	}
 
-	public void method282(int i, Renderable class30_sub2_sub4, int j, int k, byte byte0, int l, Renderable class30_sub2_sub4_1, int i1, int j1, int k1) {
+	public void method282(int i, Renderable class30_sub2_sub4, long j, int k, byte byte0, int l, Renderable class30_sub2_sub4_1, int i1, int j1, int k1) {
 		if (class30_sub2_sub4 == null && class30_sub2_sub4_1 == null)
 			return;
 		Wall object1 = new Wall();
@@ -195,7 +195,7 @@ final class SceneGraph {
 		groundArray[k1][l][k].obj1 = object1;
 	}
 
-	public void method283(int i, int j, int k, int i1, int j1, int k1, Renderable class30_sub2_sub4, int l1, byte byte0, int i2, int j2) {
+	public void method283(long i, int j, int k, int i1, int j1, int k1, Renderable class30_sub2_sub4, int l1, byte byte0, int i2, int j2) {
 		if (class30_sub2_sub4 == null)
 			return;
 		WallDecoration class26 = new WallDecoration();
@@ -214,7 +214,7 @@ final class SceneGraph {
 		groundArray[i1][l1][j].obj2 = class26;
 	}
 
-	public boolean method284(int i, byte byte0, int j, int k, Renderable class30_sub2_sub4, int l, int i1, int j1, int k1, int l1) {
+	public boolean method284(long i, byte byte0, int j, int k, Renderable class30_sub2_sub4, int l, int i1, int j1, int k1, int l1) {
 		if (class30_sub2_sub4 == null) {
 			return true;
 		} else {
@@ -224,7 +224,7 @@ final class SceneGraph {
 		}
 	}
 
-	public boolean method285(int i, int j, int k, int l, int i1, int j1, int k1, Renderable class30_sub2_sub4, boolean flag) {
+	public boolean method285(int i, int j, int k, long l, int i1, int j1, int k1, Renderable class30_sub2_sub4, boolean flag) {
 		if (class30_sub2_sub4 == null)
 			return true;
 		int l1 = k1 - j1;
@@ -248,11 +248,11 @@ final class SceneGraph {
 		return method287(i, l1, i2, (j2 - l1) + 1, (k2 - i2) + 1, k1, i1, k, class30_sub2_sub4, j, true, l, (byte) 0);
 	}
 
-	public boolean method286(int j, int k, Renderable class30_sub2_sub4, int l, int i1, int j1, int k1, int l1, int i2, int j2, int k2) {
+	public boolean method286(int j, int k, Renderable class30_sub2_sub4, int l, int i1, int j1, int k1, int l1, int i2, long j2, int k2) {
 		return class30_sub2_sub4 == null || method287(j, l1, k2, (i2 - l1) + 1, (i1 - k2) + 1, j1, k, k1, class30_sub2_sub4, l, true, j2, (byte) 0);
 	}
 
-	private boolean method287(int i, int j, int k, int l, int i1, int j1, int k1, int l1, Renderable class30_sub2_sub4, int i2, boolean flag, int j2, byte byte0) {
+	private boolean method287(int i, int j, int k, int l, int i1, int j1, int k1, int l1, Renderable class30_sub2_sub4, int i2, boolean flag, long j2, byte byte0) {
 		for (int k2 = j; k2 < j + l; k2++) {
 			for (int l2 = k; l2 < k + i1; l2++) {
 				if (k2 < 0 || l2 < 0 || k2 >= anInt438 || l2 >= anInt439)
@@ -438,7 +438,7 @@ final class SceneGraph {
 			return class30_sub3.obj3;
 	}
 
-	public int method300(int i, int j, int k) {
+	public long method300(int i, int j, int k) {
 		Ground class30_sub3 = groundArray[i][j][k];
 		if (class30_sub3 == null || class30_sub3.obj1 == null)
 			return 0;
@@ -446,7 +446,7 @@ final class SceneGraph {
 			return class30_sub3.obj1.uid;
 	}
 
-	public int method301(int i, int j, int l) {
+	public long method301(int i, int j, int l) {
 		Ground class30_sub3 = groundArray[i][j][l];
 		if (class30_sub3 == null || class30_sub3.obj2 == null)
 			return 0;
@@ -454,7 +454,7 @@ final class SceneGraph {
 			return class30_sub3.obj2.uid;
 	}
 
-	public int method302(int i, int j, int k) {
+	public long method302(int i, int j, int k) {
 		Ground class30_sub3 = groundArray[i][j][k];
 		if (class30_sub3 == null)
 			return 0;
@@ -467,7 +467,7 @@ final class SceneGraph {
 		return 0;
 	}
 
-	public int method303(int i, int j, int k) {
+	public long method303(int i, int j, int k) {
 		Ground class30_sub3 = groundArray[i][j][k];
 		if (class30_sub3 == null || class30_sub3.obj3 == null)
 			return 0;
@@ -475,7 +475,7 @@ final class SceneGraph {
 			return class30_sub3.obj3.uid;
 	}
 
-	public int method304(int i, int j, int k, int l) {
+	public int method304(int i, int j, int k, long l) {
 		Ground class30_sub3 = groundArray[i][j][k];
 		if (class30_sub3 == null)
 			return -1;
@@ -894,7 +894,7 @@ final class SceneGraph {
 		int i1 = j * anInt461 - k * anInt460 >> 16;
 		int j1 = i * anInt458 + i1 * anInt459 >> 16;
 		int k1 = i * anInt459 - i1 * anInt458 >> 16;
-		if (j1 < 50 || j1 > 3500)
+		if (j1 < 50 || j1 > 6000)
 			return false;
 		int l1 = anInt493 + (l * SceneGraph.focalLength) / j1;
 		int i2 = anInt494 + (l * SceneGraph.focalLength) / j1;

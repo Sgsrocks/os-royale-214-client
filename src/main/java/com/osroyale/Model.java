@@ -1771,8 +1771,8 @@ public class Model extends Renderable {
 			return;
 		}
 	}
-
-	public final void method443(int i, int j, int k, int l, int i1, int j1, int k1, int l1, int i2) {
+	private final int MODEL_DRAW_DISTANCE = 30000;
+	public final void method443(int i, int j, int k, int l, int i1, int j1, int k1, int l1, long i2) {
 		renderAtPointX = j1 + Client.instance.xCameraPos;
 		renderAtPointY = l1 + Client.instance.yCameraPos;
 		renderAtPointZ = k1 + Client.instance.zCameraPos;
@@ -1781,7 +1781,7 @@ public class Model extends Renderable {
 		int k2 = k1 * j + j2 * k >> 16;
 		int l2 = XYZMag * k >> 16;
 		int i3 = k2 + l2;
-		if (i3 <= 50 || k2 >= 3500)
+		if (i3 <= 50 || k2 >= MODEL_DRAW_DISTANCE)
 			return;
 		int j3 = l1 * l + j1 * i1 >> 16;
 		int k3 = j3 - XYZMag * SceneGraph.focalLength;
@@ -1858,8 +1858,8 @@ public class Model extends Renderable {
 			l7 = k8;
 			projected_verticesZ[j7] = i8 - k2;
 			if (i8 >= 50) {
-				projected_verticesX[j7] = l5 + k7 * SceneGraph.focalLength / i8;
-				projected_verticesY[j7] = j6 + l7 * SceneGraph.focalLength / i8;
+				projected_verticesX[j7] = (l5 + k7 * SceneGraph.focalLength / i8);
+				projected_verticesY[j7] = (j6 + l7 * SceneGraph.focalLength / i8);
 				if (Rasterizer.saveDepth) {
 					camera_verticesZ[j7] = i8;
 				}
@@ -1884,7 +1884,7 @@ public class Model extends Renderable {
 		}
 	}
 
-	private final void method483(boolean flag, boolean flag1, int i) {
+	private final void method483(boolean flag, boolean flag1, long i) {
 		for (int j = 0; j < maxRenderDepth; j++)
 			depthListIndices[j] = 0;
 
@@ -2402,7 +2402,7 @@ public class Model extends Renderable {
 	public static int anInt1685;
 	public static int anInt1686;
 	public static int obj_loaded;
-	public static int obj_key[] = new int[1000];
+	public static long obj_key[] = new long[1000];
 	public static int SINE[];
 	public static int COSINE[];
 	static int modelIntArray3[];

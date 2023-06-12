@@ -176,7 +176,7 @@ public class Client extends GameApplet {
     public static int frameHeight = 503;
     public static int screenAreaWidth = 512;
     public static int screenAreaHeight = 334;
-    public static int cameraZoom = 600;
+    public static int cameraZoom = 512;
 
     public static boolean showChatComponents = true;
     public static boolean showTabComponents = true;
@@ -1363,10 +1363,10 @@ public class Client extends GameApplet {
         anInt1071 = 0;
         for (int k2 = 0; k2 < 104; k2++) {
             for (int l2 = 0; l2 < 104; l2++) {
-                int i3 = worldController.method303(plane, k2, l2);
+                long i3 = worldController.method303(plane, k2, l2);
                 if (i3 != 0) {
-                    i3 = i3 >> 14 & 0x7fff;
-                    int j3 = ObjectDefinition.forID(i3).anInt746;
+                    int objId = ObjectKey.getObjectId(i3);
+                    int j3 = ObjectDefinition.forID(objId).anInt746;
                     if (j3 >= 0) {
                         int k3 = k2;
                         int l3 = l2;
@@ -1375,10 +1375,10 @@ public class Client extends GameApplet {
                         } else if (j3 >= 68 && j3 <= 84) {
                             j3 -= 1;
                         }
-                        aClass30_Sub2_Sub1_Sub1Array1140[anInt1071] = mapFunctions[j3];
-                        anIntArray1072[anInt1071] = k3;
-                        anIntArray1073[anInt1071] = l3;
-                        anInt1071++;
+                       // aClass30_Sub2_Sub1_Sub1Array1140[anInt1071] = mapFunctions[j3];
+                       // anIntArray1072[anInt1071] = k3;
+                       // anIntArray1073[anInt1071] = l3;
+                      //  anInt1071++;
                     }
                 }
             }
@@ -1419,15 +1419,15 @@ public class Client extends GameApplet {
             }
         }
 
-        int i1 = x + (y << 7) + 0x60000000;
+        long i1 = x + (y << 7) | 0x60000000;
         worldController.method281(x, i1, ((Renderable) (obj1)), getCenterHeight(x * 128 + 64, y * 128 + 64, plane), ((Renderable) (obj2)), ((Renderable) (obj)), plane, y);
     }
 
-    private void method26(boolean flag) {
-        for (int j = 0; j < npcCount; j++) {
-            Npc npc = npcs[npcIndices[j]];
-            int k = 0x20000000 + (npcIndices[j] << 14);
-            if (npc == null || !npc.isVisible() || npc.definition.aBoolean93 != flag) {
+    private void method26(boolean render) {
+        for (int rendered  = 0; rendered  < npcCount; rendered ++) {
+            Npc npc = npcs[npcIndices[rendered ]];
+            long k = 0x20000000L | (long) npcIndices[rendered] << 32;
+            if (npc == null || !npc.isVisible() || npc.definition.aBoolean93 != render) {
                 continue;
             }
             int l = npc.x >> 7;
@@ -1442,7 +1442,7 @@ public class Client extends GameApplet {
                 anIntArrayArray929[l][i1] = anInt1265;
             }
             if (!npc.definition.aBoolean84) {
-                k += 0x80000000;
+                k |= ~0x7fffffffffffffffL;
             }
             worldController.method285(plane, npc.anInt1552, getCenterHeight(npc.x, npc.y, plane), k, npc.y, (npc.size - 1) * 64 + 60, npc.x, npc, npc.aBoolean1541);
         }
@@ -3471,41 +3471,29 @@ public class Client extends GameApplet {
     }
 
     private void method47(boolean flag) {
-        if (localPlayer.x >> 7 == destX && localPlayer.y >> 7 == destY) {
+        if (localPlayer.x >> 7 == destX && localPlayer.y >> 7 == destY)
             destX = 0;
-        }
-
         int j = playerCount;
-
-        if (flag) {
+        if (flag)
             j = 1;
-        }
-
         for (int l = 0; l < j; l++) {
             Player player;
-
-            int i1;
+            long i1;
             if (flag) {
                 player = localPlayer;
-                i1 = myPlayerIndex << 14;
+                i1 = (long) myPlayerIndex << 32;
             } else {
                 player = playerArray[playerIndices[l]];
-                i1 = playerIndices[l] << 14;
+                i1 = (long) playerIndices[l] << 32;
             }
-
-            if (player == null || !player.isVisible()) {
+            if (player == null || !player.isVisible())
                 continue;
-            }
-
-            player.aBoolean1699 = (lowMem && playerCount > 50 || playerCount > 200) && !flag && player.movementAnimation == player.idleAnimation;
-
-            int regionX = player.x >> 7;
-            int regionY = player.y >> 7;
-
-            if (regionX < 0 || regionX >= 104 || regionY < 0 || regionY >= 104) {
+            player.aBoolean1699 = (lowMem && playerCount > 50 || playerCount > 200) && !flag
+                    && player.movementAnimation == player.idleAnimation;
+            int j1 = player.x >> 7;
+            int k1 = player.y >> 7;
+            if (j1 < 0 || j1 >= 104 || k1 < 0 || k1 >= 104)
                 continue;
-            }
-
             if (player.aModel_1714 != null && tick >= player.anInt1707 && tick < player.anInt1708) {
                 player.aBoolean1699 = false;
                 player.anInt1709 = getCenterHeight(player.x, player.y, plane);
@@ -3514,11 +3502,11 @@ public class Client extends GameApplet {
             }
 
             if ((player.x & 0x7f) == 64 && (player.y & 0x7f) == 64) {
-                if (anIntArrayArray929[regionX][regionY] == anInt1265) {
+                if (anIntArrayArray929[j1][k1] == anInt1265) {
                     continue;
                 }
 
-                anIntArrayArray929[regionX][regionY] = anInt1265;
+                anIntArrayArray929[j1][k1] = anInt1265;
             }
 
             player.anInt1709 = getCenterHeight(player.x, player.y, plane);
@@ -3658,7 +3646,7 @@ public class Client extends GameApplet {
     }
 
     private void method50(int i, int k, int l, int i1, int j1) {
-        int k1 = worldController.method300(j1, l, i);
+        long k1 = worldController.method300(j1, l, i);
         if (k1 != 0) {
             int l1 = worldController.method304(j1, l, i, k1);
             int k2 = l1 >> 6 & 3;
@@ -3669,7 +3657,7 @@ public class Client extends GameApplet {
             }
             int ai[] = minimapImage.raster;
             int k4 = 24624 + l * 4 + (103 - i) * 512 * 4;
-            int i5 = k1 >> 14 & 0x7fff;
+            int i5 = ObjectKey.getObjectId(k1);
             ObjectDefinition class46_2 = ObjectDefinition.forID(i5);
             if (class46_2.anInt758 != -1) {
                 Background background_2 = mapScenes[class46_2.anInt758];
@@ -3744,7 +3732,7 @@ public class Client extends GameApplet {
             int i2 = worldController.method304(j1, l, i, k1);
             int l2 = i2 >> 6 & 3;
             int j3 = i2 & 0x1f;
-            int l3 = k1 >> 14 & 0x7fff;
+            int l3 = ObjectKey.getObjectId(k1);
             ObjectDefinition class46_1 = ObjectDefinition.forID(l3);
             if (class46_1.anInt758 != -1) {
                 Background background_1 = mapScenes[class46_1.anInt758];
@@ -3776,7 +3764,7 @@ public class Client extends GameApplet {
         }
         k1 = worldController.method303(j1, l, i);
         if (k1 != 0) {
-            int j2 = k1 >> 14 & 0x7fff;
+            int j2 = ObjectKey.getObjectId(k1);
             ObjectDefinition class46 = ObjectDefinition.forID(j2);
             if (class46.anInt758 != -1) {
                 Background background = mapScenes[class46.anInt758];
@@ -4487,8 +4475,8 @@ public class Client extends GameApplet {
         }
     }
 
-    private boolean method66(int i, int j, int k) {
-        int i1 = i >> 14 & 0x7fff;
+    private boolean method66(long i, int j, int k) {
+        int i1 =  ObjectKey.getObjectId(i);
         int j1 = worldController.method304(plane, k, j, i);
         if (j1 == -1) {
             return false;
@@ -4703,8 +4691,8 @@ public class Client extends GameApplet {
         int first = menuActionCmd2[id];
         int second = menuActionCmd3[id];
         int action = menuActionID[id];
-        int localPlayerIndex = menuActionCmd1[id];
-
+        int localPlayerIndex = (int) menuActionCmd1[id];
+        long keyLong = menuActionCmd1[id];
         if (action >= 2000) {
             action -= 2000;
         }
@@ -4861,10 +4849,10 @@ public class Client extends GameApplet {
             outgoing.writeShort(localPlayerIndex);
             outgoing.writeLEShort(first + baseX);
         }
-        if (action == 62 && method66(localPlayerIndex, second, first)) {
+        if (action == 62 && method66(keyLong, second, first)) {
             outgoing.writeOpcode(192);
             outgoing.writeShort(anInt1284);
-            outgoing.writeLEShort(localPlayerIndex >> 14 & 0x7fff);
+            outgoing.writeDWord(ObjectKey.getObjectId(keyLong));
             outgoing.writeLEShortA(second + baseY);
             outgoing.writeLEShort(anInt1283);
             outgoing.writeLEShortA(first + baseX);
@@ -5087,9 +5075,9 @@ public class Client extends GameApplet {
             }
         }
         if (action == 1062) {
-            method66(localPlayerIndex, second, first);
+            method66(keyLong, second, first);
             outgoing.writeOpcode(228);
-            outgoing.writeShortA(localPlayerIndex >> 14 & 0x7fff);
+            outgoing.writeDWord(ObjectKey.getObjectId(keyLong));
             outgoing.writeShortA(second + baseY);
             outgoing.writeShort(first + baseX);
         }
@@ -5577,9 +5565,9 @@ public class Client extends GameApplet {
             }
         }
         if (action == 900) {
-            method66(localPlayerIndex, second, first);
+            method66(keyLong, second, first);
             outgoing.writeOpcode(252);
-            outgoing.writeLEShortA(localPlayerIndex >> 14 & 0x7fff);
+            outgoing.writeDWord(ObjectKey.getObjectId(keyLong));
             outgoing.writeLEShort(second + baseY);
             outgoing.writeShortA(first + baseX);
         }
@@ -5638,12 +5626,12 @@ public class Client extends GameApplet {
                 outgoing.writeLEShort(localPlayerIndex);
             }
         }
-        if (action == 956 && method66(localPlayerIndex, second, first)) {
+        if (action == 956 && method66(keyLong, second, first)) {
             outgoing.writeOpcode(35);
             outgoing.writeLEShort(first + baseX);
             outgoing.writeShortA(anInt1137);
             outgoing.writeShortA(second + baseY);
-            outgoing.writeLEShort(localPlayerIndex >> 14 & 0x7fff);
+            outgoing.writeDWord(ObjectKey.getObjectId(keyLong));
         }
         if (action == 567) {
             walk(first, second,  2);
@@ -5803,24 +5791,24 @@ public class Client extends GameApplet {
             }
         }
         if (action == 113) {
-            method66(localPlayerIndex, second, first);
+            method66(keyLong, second, first);
             outgoing.writeOpcode(70);
             outgoing.writeLEShort(first + baseX);
             outgoing.writeShort(second + baseY);
-            outgoing.writeLEShortA(localPlayerIndex >> 14 & 0x7fff);
+            outgoing.writeDWord(ObjectKey.getObjectId(keyLong));
         }
         if (action == 872) {
-            method66(localPlayerIndex, second, first);
+            method66(keyLong, second, first);
             outgoing.writeOpcode(234);
             outgoing.writeLEShortA(first + baseX);
-            outgoing.writeShortA(localPlayerIndex >> 14 & 0x7fff);
+            outgoing.writeDWord(ObjectKey.getObjectId(keyLong));
             outgoing.writeLEShortA(second + baseY);
         }
         if (action == 502) {
-            method66(localPlayerIndex, second, first);
+            method66(keyLong, second, first);
             outgoing.writeOpcode(132);
             outgoing.writeLEShortA(first + baseX);
-            outgoing.writeShort(localPlayerIndex >> 14 & 0x7fff);
+            outgoing.writeDWord(ObjectKey.getObjectId(keyLong));
             outgoing.writeShortA(second + baseY);
         }
         if (action == 1125) {
@@ -5867,7 +5855,7 @@ public class Client extends GameApplet {
             return;
         }
         if (action == 1226) {
-            int j1 = localPlayerIndex >> 14 & 0x7fff;
+            int j1 =  ObjectKey.getObjectId(keyLong);
             ObjectDefinition class46 = ObjectDefinition.forID(j1);
             String s10;
             if (class46.description != null) {
@@ -5930,18 +5918,18 @@ public class Client extends GameApplet {
             menuActionCmd3[menuActionRow] = super.mouseY;
             menuActionRow++;
         }
-        int j = -1;
+        long j = -1;
         for (int k = 0; k < Model.obj_loaded; k++) {
-            int packedData = Model.obj_key[k];
-            int localRegionX = packedData & 0x7f;
-            int localRegionY = packedData >> 7 & 0x7f;
-            int k1 = packedData >> 29 & 3;
-            int id = packedData >> 14 & 0x7fff;
+            long packedData = Model.obj_key[k];
+            int localRegionX = ObjectKey.getObjectX(packedData);
+            int localRegionY = ObjectKey.getObjectY(packedData);
+            int k1 =ObjectKey.getObjectOpcode(packedData);
+            int id = ObjectKey.getObjectId(packedData);
             if (packedData == j) {
                 continue;
             }
             j = packedData;
-            if (k1 == 2 && worldController.method304(plane, localRegionX, localRegionY, packedData) >= 0) {
+            if (k1 == 2 ) {
                 ObjectDefinition definition = ObjectDefinition.forID(id);
 
                 if (definition.childrenIDs != null) {
@@ -6023,9 +6011,9 @@ public class Client extends GameApplet {
                     }
                 }
             }
+
             if (k1 == 1) {
                 Npc npc = npcs[id];
-                try {
                     if (npc.definition.size == 1 && (npc.x & 0x7f) == 64 && (npc.y & 0x7f) == 64) {
                         for (int j2 = 0; j2 < npcCount; j2++) {
                             Npc npc2 = npcs[npcIndices[j2]];
@@ -6041,8 +6029,6 @@ public class Client extends GameApplet {
                         }
                     }
                     buildAtNPCMenu(npc.definition, id, localRegionY, localRegionX);
-                } catch (Exception e) {
-                }
             }
             if (k1 == 0) {
                 Player player = playerArray[id];
@@ -8188,7 +8174,7 @@ public class Client extends GameApplet {
                     k = menuActionCmd3[j];
                     menuActionCmd3[j] = menuActionCmd3[j + 1];
                     menuActionCmd3[j + 1] = k;
-                    k = menuActionCmd1[j];
+                    k = (int) menuActionCmd1[j];
                     menuActionCmd1[j] = menuActionCmd1[j + 1];
                     menuActionCmd1[j + 1] = k;
                     flag = false;
@@ -8897,7 +8883,7 @@ public class Client extends GameApplet {
     }
 
     private void method89(SpawnedObject class30_sub1) {
-        int i = 0;
+        long i = 0;
         int j = -1;
         int k = 0;
         int l = 0;
@@ -8915,7 +8901,7 @@ public class Client extends GameApplet {
         }
         if (i != 0) {
             int i1 = worldController.method304(class30_sub1.anInt1295, class30_sub1.anInt1297, class30_sub1.anInt1298, i);
-            j = i >> 14 & 0x7fff;
+            j = ObjectKey.getObjectId(i);
             k = i1 & 0x1f;
             l = i1 >> 6;
         }
@@ -11966,7 +11952,7 @@ public class Client extends GameApplet {
         for (int j5 = 0; j5 < anInt1071; j5++) {
             int k = (anIntArray1072[j5] * 4 + 2) - localPlayer.x / 32;
             int i3 = (anIntArray1073[j5] * 4 + 2) - localPlayer.y / 32;
-            markMinimap(aClass30_Sub2_Sub1_Sub1Array1140[j5], k, i3);
+            //markMinimap(aClass30_Sub2_Sub1_Sub1Array1140[j5], k, i3);
         }
         for (int k5 = 0; k5 < 104; k5++) {
             for (int l5 = 0; l5 < 104; l5++) {
@@ -12150,7 +12136,7 @@ public class Client extends GameApplet {
         j2 = i1 * k1 - z * j1 >> 16;
         z = i1 * j1 + z * k1 >> 16;
         if (z >= 50) {
-            return new int[]{Rasterizer.textureInt1 + (x << SceneGraph.viewDistance) / z, Rasterizer.textureInt2 + (j2 << SceneGraph.viewDistance) / z, z, Rasterizer.textureInt1 + (x - width / 2 << SceneGraph.viewDistance) / z, Rasterizer.textureInt2 + (j2 - height / 2 << SceneGraph.viewDistance) / z, Rasterizer.textureInt1 + (x + width / 2 << SceneGraph.viewDistance) / z, Rasterizer.textureInt2 + (j2 + height / 2 << SceneGraph.viewDistance) / z};
+            return new int[]{Rasterizer.textureInt1 + x * SceneGraph.focalLength / z, Rasterizer.textureInt2 + j2 * SceneGraph.focalLength / z, z, Rasterizer.textureInt1 + x - width / 2 * SceneGraph.focalLength / z, Rasterizer.textureInt2 + j2 - height / 2 * SceneGraph.focalLength / z, Rasterizer.textureInt1 + x + width / 2 * SceneGraph.focalLength / z, Rasterizer.textureInt2 + j2 + height / 2 * SceneGraph.focalLength / z};
         } else {
             return new int[]{0, 0, 0, 0, 0, 0, 0};
         }
@@ -12161,7 +12147,6 @@ public class Client extends GameApplet {
     }
 
     private void calcEntityScreenPos(int x, int y, int j) {
-        SceneGraph.focalLength = Rasterizer.width;
         if (x < 128 || y < 128 || x > 13056 || y > 13056) {
             spriteDrawX = -1;
             spriteDrawY = -1;
@@ -12187,13 +12172,12 @@ public class Client extends GameApplet {
         i1 = j2;
 
         if (y >= 50) {
-            spriteDrawX = Rasterizer.textureInt1 + (x << SceneGraph.viewDistance) / y;
-            spriteDrawY = Rasterizer.textureInt2 + (i1 << SceneGraph.viewDistance) / y;
+            spriteDrawX = Rasterizer.textureInt1 + x * SceneGraph.focalLength / y;
+            spriteDrawY = Rasterizer.textureInt2 + i1 * SceneGraph.focalLength / y;
         } else {
             spriteDrawX = -1;
             spriteDrawY = -1;
         }
-        SceneGraph.focalLength = 512;
     }
 
     private void render_ground_item_names() {
@@ -12443,7 +12427,7 @@ public class Client extends GameApplet {
                 if (j16 == 0) {
                     Wall class10 = worldController.method296(plane, j4, i7);
                     if (class10 != null) {
-                        int k21 = class10.uid >> 14 & 0x7fff;
+                        int k21 = ObjectKey.getObjectId(class10.uid);
                         if (j12 == 2) {
                             class10.aClass30_Sub2_Sub4_278 = new SceneObject(k21, 4 + k14, 2, i19, l19, j18, k20, j17, false);
                             class10.aClass30_Sub2_Sub4_279 = new SceneObject(k21, k14 + 1 & 3, 2, i19, l19, j18, k20, j17, false);
@@ -12455,7 +12439,7 @@ public class Client extends GameApplet {
                 if (j16 == 1) {
                     WallDecoration class26 = worldController.method297(j4, i7, plane);
                     if (class26 != null) {
-                        class26.aClass30_Sub2_Sub4_504 = new SceneObject(class26.uid >> 14 & 0x7fff, 0, 4, i19, l19, j18, k20, j17, false);
+                        class26.aClass30_Sub2_Sub4_504 = new SceneObject(ObjectKey.getObjectId(class26.uid), 0, 4, i19, l19, j18, k20, j17, false);
                     }
                 }
                 if (j16 == 2) {
@@ -12464,13 +12448,13 @@ public class Client extends GameApplet {
                         j12 = 10;
                     }
                     if (class28 != null) {
-                        class28.aClass30_Sub2_Sub4_521 = new SceneObject(class28.uid >> 14 & 0x7fff, k14, j12, i19, l19, j18, k20, j17, false);
+                        class28.aClass30_Sub2_Sub4_521 = new SceneObject(ObjectKey.getObjectId(class28.uid), k14, j12, i19, l19, j18, k20, j17, false);
                     }
                 }
                 if (j16 == 3) {
                     GroundDecoration class49 = worldController.method299(i7, j4, plane);
                     if (class49 != null) {
-                        class49.aClass30_Sub2_Sub4_814 = new SceneObject(class49.uid >> 14 & 0x7fff, k14, 22, i19, l19, j18, k20, j17, false);
+                        class49.aClass30_Sub2_Sub4_814 = new SceneObject(ObjectKey.getObjectId(class49.uid), k14, 22, i19, l19, j18, k20, j17, false);
                     }
                 }
             }
@@ -12772,7 +12756,7 @@ public class Client extends GameApplet {
             if (lowMem && j != plane) {
                 return;
             }
-            int i2 = 0;
+            long i2 = 0;
             if (j1 == 0) {
                 i2 = worldController.method300(j, x, y);
             }
@@ -12787,7 +12771,7 @@ public class Client extends GameApplet {
             }
             if (i2 != 0) {
                 int packed = worldController.method304(j, x, y, i2);
-                int j2 = i2 >> 14 & 0x7fff;
+                int j2 = ObjectKey.getObjectId(i2);
                 int type = packed & 0x1f;
                 int direction = packed >> 6;
                 if (j1 == 0) {
@@ -14706,7 +14690,7 @@ public class Client extends GameApplet {
                 i = anIntArray1203[4] + 128;
             }
             int k = minimapInt1 + anInt896 & 0x7ff;
-            setCameraPos(cameraZoom + (frameWidth >= 1024 ? i + cameraZoom - frameHeight / 200 : i) * (SceneGraph.viewDistance == 9 && frameMode == ScreenMode.RESIZABLE ? 1 : SceneGraph.viewDistance == 10 ? 1 : 3), i, anInt1014, getCenterHeight(localPlayer.x, localPlayer.y, plane) - 50, k, anInt1015);
+            this.setCameraPos(600 + i * 3, i, this.anInt1014, this.getCenterHeight(localPlayer.x, localPlayer.y, this.plane) - 50, k, this.anInt1015);
         }
         int j;
         if (!aBoolean1160) {
@@ -14751,6 +14735,9 @@ public class Client extends GameApplet {
         Model.anInt1685 = super.mouseX - (frameMode == ScreenMode.FIXED ? 4 : 0);
         Model.anInt1686 = super.mouseY - (frameMode == ScreenMode.FIXED ? 4 : 0);
         Raster.reset();
+        if(worldController.focalLength != cameraZoom) {
+            worldController.focalLength = cameraZoom;
+        }
         worldController.method313(xCameraPos, yCameraPos, xCameraCurve, zCameraPos, j, yCameraCurve);
         worldController.clearObj5Cache();
         Iterator<Particle> iterator;
@@ -15372,7 +15359,7 @@ public class Client extends GameApplet {
         menuActionCmd2 = new int[500];
         menuActionCmd3 = new int[500];
         menuActionID = new int[500];
-        menuActionCmd1 = new int[500];
+        menuActionCmd1 = new long[500];
         headIcons = new Sprite[20];
         skullIcons = new Sprite[20];
         headIconsHint = new Sprite[20];
@@ -15646,7 +15633,7 @@ public class Client extends GameApplet {
     protected int[] menuActionCmd2;
     protected int[] menuActionCmd3;
     protected int[] menuActionID;
-    protected int[] menuActionCmd1;
+    protected long[] menuActionCmd1;
     private Sprite[] headIcons;
     private Sprite[] skullIcons;
     public Sprite[] bountyIcons;
